@@ -1,0 +1,26 @@
+services:
+  departments_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: ".env"
+    ports:
+      - 8080:${PORT}
+    depends_on:
+      departments_api_postgres:
+        condition: service_healthy
+    restart: unless-stopped
+  departments_api_postgres:
+    env_file: ".env"
+    image: postgres:17
+    volumes:
+      - departments_api_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  departments_api_postgres_data:
+    name: departments_api_postgres_data

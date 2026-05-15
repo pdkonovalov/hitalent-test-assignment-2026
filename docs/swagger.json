@@ -1,0 +1,488 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Departments API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/departments/": {
+            "post": {
+                "description": "Creates a new department, optionally nested under a parent",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "departments"
+                ],
+                "summary": "Create a department",
+                "parameters": [
+                    {
+                        "description": "Department payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.CreateDepartmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/http.CreateDepartmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Department parent not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Department name conflict",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/departments/{id}": {
+            "get": {
+                "description": "Returns a department with its employees and nested sub-departments up to the specified depth",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "departments"
+                ],
+                "summary": "Get department details with employees and subtree",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 5,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Depth of nested departments (default: 1, max: 5)",
+                        "name": "depth",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Include employees in response (default: true)",
+                        "name": "include_employees",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/query.GetDepartment"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid parameters",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Department not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a department using one of two modes:\n- `cascade` — deletes the department along with all its employees and sub-departments recursively.\n- `reassign` — deletes the department and moves its employees to the department specified by `reassign_to_department_id`.\nNote: `reassign_to_department_id` is required when mode is `reassign`.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "departments"
+                ],
+                "summary": "Delete a department",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "cascade",
+                            "reassign"
+                        ],
+                        "type": "string",
+                        "description": "Deletion mode",
+                        "name": "mode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Target department ID for employee reassignment (required when mode=reassign)",
+                        "name": "reassign_to_department_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid mode or missing reassign_to_department_id",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Department not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates department name and/or moves it under a new parent. All body fields are optional.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "departments"
+                ],
+                "summary": "Update a department",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.UpdateDepartmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/http.UpdateDepartmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or department ID",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Department not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Circular parent reference detected",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/departments/{id}/employees/": {
+            "post": {
+                "description": "Creates a new employee and assigns them to the specified department",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employees"
+                ],
+                "summary": "Create an employee in a department",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Employee payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.CreateEmployeeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/http.CreateEmployeeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or department ID",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Department not found",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "http.CreateDepartmentRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.CreateDepartmentResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.CreateEmployeeRequest": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "hired_at": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.CreateEmployeeResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "department_id": {
+                    "type": "integer"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "hired_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "position": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/http.Error"
+                }
+            }
+        },
+        "http.UpdateDepartmentRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.UpdateDepartmentResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "query.Department": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "query.Employee": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "department_id": {
+                    "type": "integer"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "hired_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "position": {
+                    "type": "string"
+                }
+            }
+        },
+        "query.GetDepartment": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/query.Department"
+                    }
+                },
+                "department": {
+                    "$ref": "#/definitions/query.Department"
+                },
+                "employees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/query.Employee"
+                    }
+                }
+            }
+        }
+    }
+}
