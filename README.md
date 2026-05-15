@@ -1,3 +1,7 @@
+# Description
+
+Test assignment to implement rest api in golang. All requirements in [pdf file](https://github.com/pdkonovalov/hitalent-test-assignment-2026/blob/main/requirements.ru.pdf).
+
 # Quickstart
 
 Run with docker compose:
