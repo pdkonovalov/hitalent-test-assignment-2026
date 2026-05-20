@@ -22,7 +22,7 @@ departments_api-1  | time=2026-05-15T14:37:52.261Z level=INFO msg="request proce
 departments_api-1  | time=2026-05-15T14:40:02.226Z level=INFO msg="request processed" request.method=GET request.path=/departments/1 request.query="depth=1&include_employees=true" request.status=OK request.duration_ms=11
 departments_api-1  | time=2026-05-15T14:40:15.608Z level=INFO msg="request processed" request.method=GET request.path=/departments/2 request.query="depth=1&include_employees=true" request.status="Not Found" request.duration_ms=2 request.errors="[department not found]"
 ```
-All requests log into console. For log only internal server set `LOG_LEVEL=error` in `.env` file.
+All requests log into console. For log only internal server errors set `LOG_LEVEL=error` in `.env` file.
 
 # Tests
 
